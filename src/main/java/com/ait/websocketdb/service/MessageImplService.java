@@ -4,10 +4,12 @@ import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.util.HtmlUtils;
 
 import com.ait.websocketdb.dto.MessageDto;
 import com.ait.websocketdb.entity.Message;
 import com.ait.websocketdb.repository.MessageRepository;
+import com.ait.websocketdb.response.Greeting;
 
 @Service
 public class MessageImplService implements MessageService{
@@ -40,15 +42,51 @@ public class MessageImplService implements MessageService{
 
 	@Override
 	public Message create(MessageDto mDto) {
-		
 		Message message = new Message();
 		
 		if(mDto != null) {
-			message.setContent(mDto.getContentString());
+			message.setContent(mDto.getContent());
 			
 			return repository.save(message);
 		}
-		
 		return null;
 	}
+
+	@Override
+	public boolean delete(Long id) {
+		Optional<Message> messeage = findById(id);
+		
+		if (messeage.isPresent()) {
+			deleteById(id);
+			return true;
+		} 
+		return false;
+	}
+
+	@Override
+	public Greeting findMessById(Long id) {
+		Optional<Message> messeage = findById(id);
+		
+		if (messeage.isPresent()) {
+			Greeting greeting = new Greeting(messeage.get().getId(),HtmlUtils.htmlEscape(messeage.get().getContent()));
+			return greeting;
+		} 
+		return null;
+	}
+
+	@Override
+	public Message update(Long id, MessageDto mDto) {
+		Optional<Message> message = findById(id);
+		
+		if (message.isPresent()) {
+			if (mDto.getContent() != null && !message.get().getContent().equals(mDto.getContent())) {
+				message.get().setContent(mDto.getContent());
+			}
+			
+			return repository.save(message.get());
+		}
+		return null;
+	}
+	
+	
 }

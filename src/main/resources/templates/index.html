@@ -19,7 +19,6 @@
 		    border-radius: 5px;
 		}
     </style>
-    <script src="https://kit.fontawesome.com/ee851cd5ee.js" crossorigin="anonymous"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.5.2/sockjs.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
@@ -39,15 +38,17 @@
     }
 
     function connect() {
-        var socket = new SockJS('/ait-websocket');
+        var socket = new SockJS('/gs-guide-websocket');
         stompClient = Stomp.over(socket);
         stompClient.connect({}, function (frame) {
             setConnected(true);
             console.log('Connected: ' + frame);
+            showComments();
             stompClient.subscribe('/topic/greetings', function (greeting) {
-                showGreeting(JSON.parse(greeting.body).content);
+                showGreeting(JSON.parse(greeting.body).id, JSON.parse(greeting.body).content, JSON.parse(greeting.body).type);
             });
         });
+        
     }
 
     function disconnect() {
@@ -57,49 +58,130 @@
         setConnected(false);
         console.log("Disconnected");
     }
-
-    // gửi tin nhắn
-    function sendName() {
-        stompClient.send("/app/hello", {}, JSON.stringify({
-        		'name': $("#name").val()
-        	}));
-    }
-
-    //vẽ tin nhắn
-    function showGreeting(id, message) {
-        $("#greetings").append(`
-        			<tr>
-        				<td>
-        					<span data-id="${id}">${message}</span>
-        					<a href="" class="btn-edit"><i class="fas fa-edit"></i></a>
-        					<a href="" class="btn-remove"><i class="fas fa-trash-alt"></i></a>
-        				</td>
-        			</tr>
-        		`);
+    
+	// Hien thi message vua chat
+    function showGreeting(id, message, type) {
+		switch (type) {
+			case "create": 
+				$("#greetings").append(`
+		        		<tr>
+		        			<td>
+		        				<span data-id="${id}">${message}</span> &nbsp;	&nbsp;	&nbsp;	&nbsp;	&nbsp;
+		        				<a href="javascript: void(0)" class="delete-btn" data-id="${id}"> Delete </a> &nbsp;	&nbsp;	&nbsp;	&nbsp;	&nbsp;
+		        				<a href="javascript: void(0)" class="edit-btn" data-id="${id}"> Edit </a>
+		        			</td>
+		        		</tr>	
+		        	`);
+		        eventDeleteComment();
+		        eventEditComment();
+		        break;
+			case "delete":
+				$('#greetings a[data-id="' + id + '"]').parent().parent().remove();
+			default: 
+				console.log("error");
+		}
+		
         
-        		$(".btn-edit").on("click", function(e) {
-        			e.preventDefault();
-        		});
-        		
-        		$(".btn-remove").on("click", function(e) {
-        			e.preventDefault();
-        			
-        			alert("OK");
-        		});
+    }
+    
+    // Luu message vao db
+    function saveMessage() {
+    	let content = $("#name").val();
+    	$.ajax({
+    		type: "POST",
+    		headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+            },
+    		url: "/api/mess",
+    		data: JSON.stringify(content)
+    	}).done((data) => {
+    		let type = "create";
+    		stompClient.send("/app/send", {}, JSON.stringify(data.id, type));  //gui tin nhan realtime
+    	});
+    }
+    
+    // Hien thi tat ca comment
+    function showComments() {
+    	$.ajax({
+            type: "GET",
+            url: location.origin + "/api/mess",
+	    }).done((data) => {
+	        $.each(data, (i, item) => {
+	        	$("#greetings").append(`
+	        			<tr>
+		        			<td>
+		        				<span data-id="${item.id}">${item.content}</span> &nbsp;	&nbsp;	&nbsp;	&nbsp;	&nbsp;
+		        				<a href="javascript: void(0)" class="delete-btn" data-id="${item.id}"> Delete </a>	&nbsp;	&nbsp;	&nbsp;	&nbsp;	&nbsp;
+		        				<a href="javascript: void(0)" class="edit-btn" data-id="${item.id}"> Edit </a>
+		        			</td> 
+		        		</tr>
+	        		`)
+	        });
+	        eventDeleteComment();
+	        eventEditComment();
+	    });
+    }
+    
+    // xoa mess
+    function eventDeleteComment() {
+    	$(".delete-btn").on("click", function(e) {
+    		e.preventDefault();
+    		let id = $(this).data("id");
+    		let type = "delete";
+    		
+    		stompClient.send("/app/send", {}, JSON.stringify(id, type));  //gui tin nhan realtime
+    		deleteComment(id);
+    	});
+    }
+    
+    function deleteComment(id) {
+  		$.ajax({
+              type: "DELETE",
+              url: `/api/mess/${id}`
+          }).done((data) => {
+            
+          });
     }
 
+    // edit mess
+    
+    function eventEditComment() {
+    	$(".edit-btn").on("click", function(e) {
+    		e.preventDefault();
+    		let id = $(this).data("id");
+    		 // stompClient.send("/app/edit", {}, JSON.stringify(id));  // gui lenh xoa realtime
+    		getComment(id);
+    	});
+    }
+    
+    // get tin nhan muon sua vao o input
+    function getComment(id) {
+    	$.ajax({
+            type: "GET",
+            url:`/api/mess/${id}` 
+	    }).done((data) => {
+	    	console.log(data);
+	    	$("#name").val(data.content);
+	    });
+    }
+    
+   
+    
     $(function () {
+    	
         $("form").on('submit', function (e) {
             e.preventDefault();
         });
-        $( "#connect" ).click(function() { connect(); });
+        $( "#connect" ).click(function() { 
+        	connect();
+        });
         $( "#disconnect" ).click(function() { disconnect(); });
-        $( "#send" ).click(function() { sendName(); });
+        $( "#send" ).click(function() { 
+        	saveMessage();
+        });
     });
 
-    $(() => {
-    	connect();
-    });
 
     </script>
 </head>

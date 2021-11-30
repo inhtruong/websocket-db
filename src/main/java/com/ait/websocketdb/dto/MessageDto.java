@@ -1,21 +1,36 @@
 package com.ait.websocketdb.dto;
 
 public class MessageDto {
-	private String name;
+	private Long id;
+	private String content;
 
 	public MessageDto() {
 	}
 
-	public MessageDto(String name) {
-		this.name = name;
+	public MessageDto(String content) {
+		this.content = content;
 	}
 
-	public String getName() {
-		return name;
+	public MessageDto(Long id, String content) {
+		super();
+		this.id = id;
+		this.content = content;
 	}
 
-	public void setName(String name) {
-		this.name = name;
+	public Long getId() {
+		return id;
+	}
+
+	public void setId(Long id) {
+		this.id = id;
+	}
+
+	public String getContent() {
+		return content;
+	}
+
+	public void setContent(String content) {
+		this.content = content;
 	}
 	
 	
