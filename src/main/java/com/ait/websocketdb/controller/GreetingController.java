@@ -19,11 +19,29 @@ public class GreetingController {
 	
 	@MessageMapping("/send")
 	@SendTo("/topic/greetings")
-	public Greeting greeting(Long id, String type) throws Exception {
+	public Greeting greeting(Long id) throws Exception {
 		Optional<Message> message = service.findById(id);
 		
 		Thread.sleep(1000); // simulated delay
-		return new Greeting(message.get().getId(), "Hello, " + HtmlUtils.htmlEscape(message.get().getContent()) + "!", type);
+		return new Greeting(message.get().getId(), "Hello, " + HtmlUtils.htmlEscape(message.get().getContent()) + "!");
+	}
+
+	@MessageMapping("/delete")
+	@SendTo("/topic/delete")
+	public Greeting delete(Long id) throws Exception {
+		Optional<Message> message = service.findById(id);
+
+		Thread.sleep(1000); // simulated delay
+		return new Greeting(message.get().getId(), "Hello, " + HtmlUtils.htmlEscape(message.get().getContent()) + "!");
+	}
+
+	@MessageMapping("/edit")
+	@SendTo("/topic/edit")
+	public Greeting edit(Long id) throws Exception {
+		Optional<Message> message = service.findById(id);
+
+		Thread.sleep(1000); // simulated delay
+		return new Greeting(message.get().getId(), "Hello, " + HtmlUtils.htmlEscape(message.get().getContent()) + "!");
 	}
 
 }

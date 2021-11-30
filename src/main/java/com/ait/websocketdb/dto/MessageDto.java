@@ -1,8 +1,14 @@
 package com.ait.websocketdb.dto;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 public class MessageDto {
+
 	private Long id;
+
 	private String content;
+
+	private String status;
 
 	public MessageDto() {
 	}
@@ -15,6 +21,12 @@ public class MessageDto {
 		super();
 		this.id = id;
 		this.content = content;
+	}
+
+	public MessageDto(Long id, String content, String status) {
+		this.id = id;
+		this.content = content;
+		this.status = status;
 	}
 
 	public Long getId() {
@@ -32,6 +44,12 @@ public class MessageDto {
 	public void setContent(String content) {
 		this.content = content;
 	}
-	
-	
+
+	public String getStatus() {
+		return status;
+	}
+
+	public void setStatus(String status) {
+		this.status = status;
+	}
 }

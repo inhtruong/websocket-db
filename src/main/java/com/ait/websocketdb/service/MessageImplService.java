@@ -66,12 +66,8 @@ public class MessageImplService implements MessageService{
 	@Override
 	public Greeting findMessById(Long id) {
 		Optional<Message> messeage = findById(id);
-		
-		if (messeage.isPresent()) {
-			Greeting greeting = new Greeting(messeage.get().getId(),HtmlUtils.htmlEscape(messeage.get().getContent()));
-			return greeting;
-		} 
-		return null;
+
+		return messeage.map(message -> new Greeting(message.getId(), HtmlUtils.htmlEscape(message.getContent()))).orElse(null);
 	}
 
 	@Override

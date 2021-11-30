@@ -1,10 +1,12 @@
 package com.ait.websocketdb.response;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 public class Greeting {
 
 	private Long id;
+
 	private String content;
-	private String type;
 
 	public Greeting() {
 	}
@@ -17,13 +19,6 @@ public class Greeting {
 		super();
 		this.id = id;
 		this.content = content;
-	} 
-
-	public Greeting(Long id, String content, String type) {
-		super();
-		this.id = id;
-		this.content = content;
-		this.type = type;
 	}
 
 	public Long getId() {
@@ -32,9 +27,5 @@ public class Greeting {
 
 	public String getContent() {
 		return content;
-	}
-
-	public String getType() {
-		return type;
 	}
 }
