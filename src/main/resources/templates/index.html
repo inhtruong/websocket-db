@@ -55,6 +55,7 @@
                 stompClient.subscribe('/topic/edit', function (greeting) {
                     replaceMessage(JSON.parse(greeting.body).id, JSON.parse(greeting.body).content);
                 });
+                
             });
 
         }
@@ -66,6 +67,9 @@
             setConnected(false);
             console.log("Disconnected");
         }
+        
+        // Hien thi thong bao
+        
 
         // Hien thi message vua chat
         function showGreeting(id, message) {
@@ -108,7 +112,9 @@
                 url: "/api/mess",
                 data: JSON.stringify(content)
             }).done((data) => {
-                stompClient.send("/app/send", {}, JSON.stringify(data.id));  //gui tin nhan realtime
+            	let noti = "Có tin nhắn mới";
+                stompClient.send("/app/send", {}, JSON.stringify(data.id));			//gui tin nhan realtime
+                stompClient.send("/app/notification", {}, JSON.stringify(noti));  	//gui thong bao realtime
             });
         }
 
@@ -176,13 +182,6 @@
         }
 
         // edit mess
-
-        $("#update").click(function () {
-            // let id = $(this).data("id");
-            // editComment(id);
-            alert("OK")
-        })
-
         function editComment(id) {
             let content = $("#name").val();
 
@@ -199,6 +198,8 @@
                 stompClient.send("/app/edit", {}, JSON.stringify(data.id));
             });
         }
+        
+        
 
         $(function () {
             $("form").on('submit', function (e) {
