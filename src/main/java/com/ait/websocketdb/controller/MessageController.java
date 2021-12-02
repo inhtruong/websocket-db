@@ -1,5 +1,6 @@
 package com.ait.websocketdb.controller;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
@@ -44,6 +45,13 @@ public class MessageController {
 	            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
 	        }
 	        return new ResponseEntity<>(message.get(), HttpStatus.OK);
+	}
+	
+	@GetMapping("/{offTime}/{onTime}")
+	public ResponseEntity<Iterable<Message>> findMessageInTime(@PathVariable Date offTime, @PathVariable Date onTime) {
+		Iterable<Message> messages = service.findMessageInTime(offTime, onTime);
+		return new ResponseEntity<>(messages, HttpStatus.OK);
+        
 	}
 	
 	@PostMapping

@@ -1,5 +1,6 @@
 package com.ait.websocketdb.service;
 
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -46,7 +47,6 @@ public class MessageImplService implements MessageService{
 		
 		if(mDto != null) {
 			message.setContent(mDto.getContent());
-			
 			return repository.save(message);
 		}
 		return null;
@@ -84,6 +84,13 @@ public class MessageImplService implements MessageService{
 		return null;
 	}
 
-	
-	
+	@Override
+	public Iterable<Message> findMessageInTime(java.util.Date offTime, java.util.Date onTime) {
+		Iterable<Message> messages =  repository.findMessageInTime(offTime, onTime);
+		
+		if (((List<Message>) messages).isEmpty()) {
+			return messages;
+		}
+		return null;
+	}	
 }

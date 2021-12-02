@@ -133,8 +133,9 @@
     });
     
     let stompClient = null;
-	let connected = false;
 	let btnSend = $("#buttonSend");
+	let offTime; 
+	let onTime;
 	const bell = document.getElementById('notification');
 	
 	function setConnected(connected) {
@@ -153,8 +154,11 @@
             stompClient = Stomp.over(socket);
             stompClient.connect({}, function (frame) {
                 setConnected(true);
-                connected = true;
+                onTime = new Date(Date.now());
+                
                 console.log('Connected: ' + frame);
+				offNotify()
+				
 		        stompClient.subscribe("/topic/notification", function (notification) {
 		        	console.log("notify:" +notification)
 		        	showNotification(JSON.parse(notification.body));
@@ -167,10 +171,10 @@
 	function disconnect() {
 	    if (stompClient != null) {
 	        stompClient.disconnect();	
-	        connected = false;
+	        offTime = new Date(Date.now());
 	    }
 	    console.log("Disconnected");
-	    console.log(connected);
+	    
 	}
 	
 	function showNotification(notification) {
@@ -181,21 +185,11 @@
         bell.classList.add('notify');
 	}
 	
-	function offNotify(notification) {
-		let elem = document.createElement("li");
-	    let data = 
-	    	// "Title: " + notification.title
-	       ` - Timestamp: ${notification.timeDate} - Content: ${notification.notiString}`;
-	    elem.appendChild(document.createTextNode(data));
-	    $("#notifications").append(elem);
-	    $('#js-toast').on('show.bs.toast', function () {
-	        let that = $(this);
-	        let header = that.children(".toast-header");
-	        header.children(".js-toast-timestamp").text(timeago.format(Date.parse(notification.timeDate)))
-	        // header.children(".js-toast-title").text(notification.title);
-	        that.children(".js-toast-content").text(notification.notiString);
-	    })
-	    $(".toast").toast("show");
+	function offNotify() {
+		if (!offTime == null) {
+			 console.log(offTime.toISOString());
+		}
+		 console.log(onTime.toISOString());
 	}
 	
 	$(function () {
@@ -203,7 +197,7 @@
             e.preventDefault();
         });
         $("#connect").click(function () {
-            connect();
+            connect(); 
         });
         $("#disconnect").click(function () {
             disconnect();

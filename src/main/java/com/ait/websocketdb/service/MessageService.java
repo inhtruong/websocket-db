@@ -1,5 +1,6 @@
 package com.ait.websocketdb.service;
 
+import java.util.Date;
 import java.util.Optional;
 
 import com.ait.websocketdb.dto.MessageDto;
@@ -23,5 +24,7 @@ public interface MessageService {
 	Greeting findMessById(Long id);
 
 	Message update(Long id, MessageDto mDto);
+
+	Iterable<Message> findMessageInTime(Date offTime, Date onTime);
 
 }
