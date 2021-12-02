@@ -1,20 +1,11 @@
 package com.ait.websocketdb.response;
 
-import java.time.LocalDateTime;
-
 public class Notification {
 	private String notiString;
-	private LocalDateTime timeDate;
 
 	public Notification(String notiString) {
 		super();
 		this.notiString = notiString;
-	}
-
-	public Notification(String notiString, LocalDateTime localDateTime) {
-		super();
-		this.notiString = notiString;
-		this.timeDate = localDateTime;
 	}
 
 	public Notification() {
@@ -30,13 +21,4 @@ public class Notification {
 		this.notiString = notiString;
 	}
 
-	public LocalDateTime getTimeDate() {
-		return timeDate;
-	}
-
-	public void setTimeDate(LocalDateTime timeDate) {
-		this.timeDate = timeDate;
-	}
-	
-	
 }

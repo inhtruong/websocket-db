@@ -1,7 +1,5 @@
 package com.ait.websocketdb.response;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-
 public class Greeting {
 
 	private Long id;

@@ -1,7 +1,5 @@
 package com.ait.websocketdb.dto;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-
 public class MessageDto {
 
 	private Long id;

@@ -10,18 +10,18 @@ public interface MessageService {
 
 	Iterable<Message> findAll();
 
-    Optional<Message> findById(long id);
+	Optional<Message> findById(long id);
 
-    Message save (Message message);
+	Message save(Message message);
 
-    void deleteById (long id);
-    
-    Message create(MessageDto mDto);
-    
-    boolean delete(Long id);
-    
-    Greeting findMessById(Long id);
-    
-    Message update(Long id, MessageDto mDto);
-    
+	void deleteById(long id);
+
+	Message create(MessageDto mDto);
+
+	boolean delete(Long id);
+
+	Greeting findMessById(Long id);
+
+	Message update(Long id, MessageDto mDto);
+
 }

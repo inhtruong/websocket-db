@@ -1,7 +1,5 @@
 package com.ait.websocketdb.controller;
 
-import java.sql.Date;
-import java.time.LocalDateTime;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,12 +18,12 @@ import com.ait.websocketdb.service.MessageService;
 public class GreetingController {
 	@Autowired
 	MessageService service;
-	
+
 	@MessageMapping("/send")
 	@SendTo("/topic/greetings")
 	public Greeting greeting(Long id) throws Exception {
 		Optional<Message> message = service.findById(id);
-		
+
 		Thread.sleep(1000); // simulated delay
 		return new Greeting(message.get().getId(), "Hello, " + HtmlUtils.htmlEscape(message.get().getContent()) + "!");
 	}
@@ -51,8 +49,8 @@ public class GreetingController {
 	@MessageMapping("/notification")
 	@SendTo("/topic/notification")
 	public Notification notification(NotiDto noti) throws Exception {
-		
+
 		Thread.sleep(1000); // simulated delay
-		return new Notification(HtmlUtils.htmlEscape(noti.getNotiString()), LocalDateTime.now());
+		return new Notification(HtmlUtils.htmlEscape(noti.getNotiString()));
 	}
 }

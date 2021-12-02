@@ -1,10 +1,15 @@
 package com.ait.websocketdb.entity;
 
+import java.sql.Date;
+
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
+
+import org.hibernate.annotations.CreationTimestamp;
 
 @Entity
 @Table (name = "messages")
@@ -12,7 +17,12 @@ public class Message {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Id
 	private long id;
+	
 	private String content;
+	
+	@Column(name = "created_datetime")
+	@CreationTimestamp
+	private Date createAt;
 	
 	public Message() {
 		super();
@@ -23,6 +33,13 @@ public class Message {
 		super();
 		this.id = id;
 		this.content = content;
+	}
+
+	public Message(long id, String content, Date createAt) {
+		super();
+		this.id = id;
+		this.content = content;
+		this.createAt = createAt;
 	}
 
 	public long getId() {
@@ -40,6 +57,16 @@ public class Message {
 	public void setContent(String content) {
 		this.content = content;
 	}
+
+	public Date getCreateAt() {
+		return createAt;
+	}
+
+	public void setCreateAt(Date createAt) {
+		this.createAt = createAt;
+	}
+	
+	
 	
 	
 }

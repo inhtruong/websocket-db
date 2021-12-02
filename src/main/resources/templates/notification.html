@@ -11,82 +11,83 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.1.3/css/bootstrap-reboot.min.css" />
 
     <!-- JS -->
+    <script src="https://kit.fontawesome.com/ee851cd5ee.js" crossorigin="anonymous"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.1.3/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.1.3/js/bootstrap.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.5.2/sockjs.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/timeago.js/4.0.2/timeago.full.min.js"></script>
-    <script>
-    	let stompClient = null;
-    	let connected = false;
+    
+    <style>
+		#buttonSend {
+		  cursos: pointer;
+		  background-color: #ed657d;
+		  color: #f2f2f2;
+		  text-align: center;
+		  margin: 5px;
+		  padding: 15px 35px;
+		  border: 1px solid transparent;
+		  border-radius: 4em;
+		  box-shadow: 5px 5px 4px rgba(0, 0, 0, .2);
+		  outline: 0;
+		}
 
-    	function setConnected(connected) {
-            $("#connect").prop("disabled", connected);
-            $("#disconnect").prop("disabled", !connected);
-            if (connected) {
-                $("#conversation").show();
-            } else {
-                $("#conversation").hide();
-            }
-            $("#greetings").html("");
+	.btn:active {
+            transform: scale(.9);
         }
-		
-		 function connect() {
-	            var socket = new SockJS('/gs-guide-websocket');
-	            stompClient = Stomp.over(socket);
-	            stompClient.connect({}, function (frame) {
-	                setConnected(true);
-	                connected = true;
-	                console.log('Connected: ' + frame);
-			        stompClient.subscribe("/topic/notification", function (notification) {
-			        	console.log(notification);
-			        	showNotification(JSON.parse(notification.body));
-			        });
-	                
-	            });
-		 }
 
-		
-		function disconnect() {
-		    if (stompClient != null) {
-		        stompClient.disconnect();
-		        connected = false;
-		    }
-		    console.log("Disconnected");
-		}
-		
-		function showNotification(notification) {
-		    let elem = document.createElement("li");
-		    let data = 
-		    	// "Title: " + notification.title
-		       ` - Timestamp: ${notification.timeDate} - Content: ${notification.notiString}`;
-		    elem.appendChild(document.createTextNode(data));
-		    $("#notifications").append(elem);
-		    $('#js-toast').on('show.bs.toast', function () {
-		        let that = $(this);
-		        let header = that.children(".toast-header");
-		        header.children(".js-toast-timestamp").text(timeago.format(Date.parse(notification.timeDate)))
-		        // header.children(".js-toast-title").text(notification.title);
-		        that.children(".js-toast-content").text(notification.notiString);
-		    })
-		    $(".toast").toast("show");
-		}
-		
-		$(function () {
-			$("form").on('submit', function (e) {
-                e.preventDefault();
-            });
-            $("#connect").click(function () {
-                connect();
-            });
-            $("#disconnect").click(function () {
-                disconnect();
-            });
-            $(".toast").toast({
-		        delay: 2000 // ms
-		    });
-		});
+        .notification {
+            width: 50px;
+            height: inherit;
+            color: red;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+        }
+
+        .notification::after {
+            min-width: 20px;
+            height: 20px;
+            content: attr(data-count);
+            color: white;
+            background-color: #ed657d;
+            font-family: monospace;
+            font-weight: bolt;
+            font-size: 14px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border-radius: 50%;
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            transition: .3s;
+            opacity: 0;
+            transform: scale(.5);
+            will-change: opacity, transform;
+        }
+
+        .notification.show-count::after {
+            opacity: 1;
+            transform: scale(1);
+        }
+
+        .notification::before {
+            content: "\f0f3";
+            font-family: "FontAwesome";
+            display: block;
+        }
+
+        .notification.notify::before {
+            animation: bell 1s ease-out;
+            transform-origin: center top;
+        }
+
+	</style>
+    <script>
+    	
 		
     </script>
 </head>
@@ -102,6 +103,9 @@
 <h2>Notifications</h2>
 <ul id="notifications"></ul>
 
+<a href="javascript:void(0)" id="buttonSend" class="btn">Send notification</a>
+<div id="notification" class="notification"></div>
+
 <div aria-live="polite" aria-atomic="true" class="position-relative">
   	<div class="toast-container position-absolute top-0 end-0 p-3">
 	  		<div class="toast" id="js-toast" role="alert" aria-live="assertive" aria-atomic="true">
@@ -115,7 +119,98 @@
 			</div>
   	</div>
 </div>
-  
-
 </body>
+<script>
+    const $button = document.getElementById('buttonSend');
+    const $bell = document.getElementById('notification');
+
+    $button.addEventListener("click", function (event) {
+        const count = Number($bell.getAttribute('data-count')) || 0;
+
+        $bell.setAttribute('data-count', count + 1);
+        $bell.classList.add('show-count');
+        $bell.classList.add('notify');
+    });
+    
+    let stompClient = null;
+	let connected = false;
+	let btnSend = $("#buttonSend");
+	const bell = document.getElementById('notification');
+	
+	function setConnected(connected) {
+        $("#connect").prop("disabled", connected);
+        $("#disconnect").prop("disabled", !connected);
+        if (connected) {
+            $("#conversation").show();
+        } else {
+            $("#conversation").hide();
+        }
+        $("#greetings").html("");
+    }
+	
+	 function connect() {
+            var socket = new SockJS('/gs-guide-websocket');
+            stompClient = Stomp.over(socket);
+            stompClient.connect({}, function (frame) {
+                setConnected(true);
+                connected = true;
+                console.log('Connected: ' + frame);
+		        stompClient.subscribe("/topic/notification", function (notification) {
+		        	console.log("notify:" +notification)
+		        	showNotification(JSON.parse(notification.body));
+		        });
+                
+            });
+	 }
+
+	
+	function disconnect() {
+	    if (stompClient != null) {
+	        stompClient.disconnect();	
+	        connected = false;
+	    }
+	    console.log("Disconnected");
+	    console.log(connected);
+	}
+	
+	function showNotification(notification) {
+	    const count = Number(bell.getAttribute('data-count')) || 0;
+
+        bell.setAttribute('data-count', count + 1);
+        bell.classList.add('show-count');
+        bell.classList.add('notify');
+	}
+	
+	function offNotify(notification) {
+		let elem = document.createElement("li");
+	    let data = 
+	    	// "Title: " + notification.title
+	       ` - Timestamp: ${notification.timeDate} - Content: ${notification.notiString}`;
+	    elem.appendChild(document.createTextNode(data));
+	    $("#notifications").append(elem);
+	    $('#js-toast').on('show.bs.toast', function () {
+	        let that = $(this);
+	        let header = that.children(".toast-header");
+	        header.children(".js-toast-timestamp").text(timeago.format(Date.parse(notification.timeDate)))
+	        // header.children(".js-toast-title").text(notification.title);
+	        that.children(".js-toast-content").text(notification.notiString);
+	    })
+	    $(".toast").toast("show");
+	}
+	
+	$(function () {
+		$("form").on('submit', function (e) {
+            e.preventDefault();
+        });
+        $("#connect").click(function () {
+            connect();
+        });
+        $("#disconnect").click(function () {
+            disconnect();
+        });
+        $(".toast").toast({
+	        delay: 2000 // ms
+	    });
+	});
+</script>
 </html>
